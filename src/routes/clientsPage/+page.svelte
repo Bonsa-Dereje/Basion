@@ -26,9 +26,8 @@
     { label: 'SUN', num: 16, event: null },
   ];
 
-  // Project workflow nodes — node style with approve/revise actions
-  // positions: { left, top } in px relative to canvas (560×260)
-  const wfNodes = [
+  // Project workflow nodes — reactive positions for drag support
+  let wfNodes = [
     {
       id: 'brief',
       label: 'Input',
@@ -76,9 +75,40 @@
     },
   ];
 
+  // ── Drag logic ───────────────────────────────────────
+  let draggingId = null;
+  let dragOffset = { x: 0, y: 0 };
+
+  function onNodeMouseDown(e, nodeId) {
+    // ignore clicks on buttons inside the node
+    if (e.target.closest('button')) return;
+    e.preventDefault();
+    draggingId = nodeId;
+    const node = wfNodes.find(n => n.id === nodeId);
+    dragOffset.x = e.clientX - node.pos.left;
+    dragOffset.y = e.clientY - node.pos.top;
+  }
+
+  function onMouseMove(e) {
+    if (!draggingId) return;
+    wfNodes = wfNodes.map(n => {
+      if (n.id !== draggingId) return n;
+      return {
+        ...n,
+        pos: {
+          left: Math.max(0, Math.min(430, e.clientX - dragOffset.x)),
+          top:  Math.max(0, Math.min(200, e.clientY - dragOffset.y)),
+        }
+      };
+    });
+  }
+
+  function onMouseUp() {
+    draggingId = null;
+  }
+  // ─────────────────────────────────────────────────────
+
   // SVG connector paths between nodes (from right edge to left edge)
-  // Each node is 130px wide, 20px taller due to header
-  // We define center-right and center-left of each node
   function nodeCenter(node) {
     const h = node.actions ? 112 : 78;
     return { x: node.pos.left + 130, y: node.pos.top + h / 2 };
@@ -169,9 +199,12 @@
     return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${icons[name] || ''}</svg>`;
   }
 
-  // Build node lookup for connections
-  const nodeMap = Object.fromEntries(wfNodes.map(n => [n.id, n]));
+  // Build node lookup for connections (reactive)
+  $: nodeMap = Object.fromEntries(wfNodes.map(n => [n.id, n]));
 </script>
+
+<!-- Global mouse move/up listeners for drag -->
+<svelte:window on:mousemove={onMouseMove} on:mouseup={onMouseUp} />
 
 <div class="clients-page">
 
@@ -282,8 +315,6 @@
             </div>
           </div>
 
-
-
           <!-- Niche tags -->
           <div class="lead-tags">
             <span class="lead-tag">Branding</span>
@@ -348,63 +379,67 @@
         <div class="workflow-section">
           <div class="workflow-title">Project Workflow</div>
 
+          <!-- dot-grid canvas, nodes centered inside -->
           <div class="node-canvas">
+            <div class="node-canvas-inner">
 
-            <!-- SVG connector lines -->
-            <svg class="node-svg" xmlns="http://www.w3.org/2000/svg">
-              {#each connections as [fromId, toId]}
-                {@const fromNode = nodeMap[fromId]}
-                {@const toNode   = nodeMap[toId]}
-                {@const from = nodeCenter(fromNode)}
-                {@const to   = nodeLeft(toNode)}
-                <path
-                  d="{bezier(from, to)}"
-                  fill="none"
-                  stroke={fromNode.state === 'done' ? '#8e9192' : '#444748'}
-                  stroke-width="1.2"
-                  stroke-dasharray={fromNode.state === 'pending' ? '4,4' : 'none'}
-                />
-              {/each}
-            </svg>
+              <!-- SVG connector lines -->
+              <svg class="node-svg" xmlns="http://www.w3.org/2000/svg">
+                {#each connections as [fromId, toId]}
+                  {@const fromNode = nodeMap[fromId]}
+                  {@const toNode   = nodeMap[toId]}
+                  {@const from = nodeCenter(fromNode)}
+                  {@const to   = nodeLeft(toNode)}
+                  <path
+                    d="{bezier(from, to)}"
+                    fill="none"
+                    stroke={fromNode.state === 'done' ? '#8e9192' : '#444748'}
+                    stroke-width="1.2"
+                    stroke-dasharray={fromNode.state === 'pending' ? '4,4' : 'none'}
+                  />
+                {/each}
+              </svg>
 
-            <!-- Nodes -->
-            {#each wfNodes as node}
-              <div
-                class="wf-node {node.state}"
-                style="left:{node.pos.left}px; top:{node.pos.top}px;"
-              >
-                <div class="wf-node-header">
-                  <span class="wf-node-label">{node.label}</span>
-                  <span class="wf-status-dot {node.state}"></span>
-                </div>
-                <div class="wf-node-body">
-                  <div class="wf-node-title">{node.title}</div>
-                  <div class="wf-node-sub">{node.sub}</div>
+              <!-- Nodes -->
+              {#each wfNodes as node (node.id)}
+                <div
+                  class="wf-node {node.state} {draggingId === node.id ? 'dragging' : ''}"
+                  style="left:{node.pos.left}px; top:{node.pos.top}px;"
+                  on:mousedown={e => onNodeMouseDown(e, node.id)}
+                >
+                  <div class="wf-node-header">
+                    <span class="wf-node-label">{node.label}</span>
+                    <span class="wf-status-dot {node.state}"></span>
+                  </div>
+                  <div class="wf-node-body">
+                    <div class="wf-node-title">{node.title}</div>
+                    <div class="wf-node-sub">{node.sub}</div>
 
-                  {#if node.actions}
-                    <div class="wf-node-actions">
-                      <button class="wf-btn-approve">{node.actions.approve}</button>
-                      <button class="wf-btn-revise">{node.actions.revise}</button>
-                    </div>
-                  {:else if node.state === 'done'}
-                    <div class="wf-done-badge">
-                      {@html ic('check', 11)}
-                      Approved
-                    </div>
+                    {#if node.actions}
+                      <div class="wf-node-actions">
+                        <button class="wf-btn-approve">{node.actions.approve}</button>
+                        <button class="wf-btn-revise">{node.actions.revise}</button>
+                      </div>
+                    {:else if node.state === 'done'}
+                      <div class="wf-done-badge">
+                        {@html ic('check', 11)}
+                        Approved
+                      </div>
+                    {/if}
+                  </div>
+
+                  <!-- connector dots -->
+                  {#if node.id !== 'brief'}
+                    <div class="wf-connector left"></div>
+                  {/if}
+                  {#if node.id !== 'final'}
+                    <div class="wf-connector"></div>
                   {/if}
                 </div>
+              {/each}
 
-                <!-- connector dots -->
-                {#if node.id !== 'brief'}
-                  <div class="wf-connector left"></div>
-                {/if}
-                {#if node.id !== 'final'}
-                  <div class="wf-connector"></div>
-                {/if}
-              </div>
-            {/each}
-
-          </div>
+            </div><!-- /node-canvas-inner -->
+          </div><!-- /node-canvas -->
         </div>
 
         <!-- ── Follow-up Tracker ─────────────────────── -->

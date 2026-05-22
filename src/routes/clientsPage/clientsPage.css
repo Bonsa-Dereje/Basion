@@ -599,9 +599,10 @@
 /* ─── Project Workflow (node canvas) ─────────────────── */
 .workflow-section {
   padding: 16px 20px;
-  overflow-x: auto;
-  overflow-y: auto;
+  overflow: hidden;
   border-right: 1px solid var(--outline-variant);
+  display: flex;
+  flex-direction: column;
 }
 
 .workflow-title {
@@ -610,13 +611,31 @@
   font-weight: 600;
   color: var(--on-surface);
   margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
-/* Node canvas */
+/* Node canvas — dot grid background, centered content */
 .node-canvas {
   position: relative;
-  min-width: 560px;
+  flex: 1;
+  /* subtle dot grid */
+  background-image: radial-gradient(circle, var(--outline-variant) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: 0 0;
+  border-radius: var(--radius);
+  overflow: visible;
+  /* center the nodes visually */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* inner wrapper that holds the absolutely-positioned nodes + SVG */
+.node-canvas-inner {
+  position: relative;
+  width: 560px;
   height: 260px;
+  flex-shrink: 0;
 }
 
 .node-canvas svg.node-svg {
@@ -636,9 +655,17 @@
   border-radius: var(--radius-md);
   width: 130px;
   overflow: hidden;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  cursor: grab;
+  user-select: none;
 }
 .wf-node:hover { border-color: var(--outline); }
+.wf-node.dragging {
+  cursor: grabbing;
+  border-color: var(--outline);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  z-index: 10;
+}
 
 .wf-node.done   { border-color: var(--primary); }
 .wf-node.active { border-color: var(--on-surface-variant); }
@@ -745,6 +772,7 @@
   border-radius: 50%;
   background: var(--surface);
   border: 1px solid var(--outline-variant);
+  pointer-events: none;
 }
 .wf-connector.left { right: auto; left: -5px; }
 
