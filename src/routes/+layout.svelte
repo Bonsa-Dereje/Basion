@@ -8,7 +8,7 @@
 const navItems = [
   { label: 'Dashboard', icon: 'grid', route: '/homePage' },
   { label: 'Clients', icon: 'users', route: '/clientsPage' },
-  { label: 'Calendar', icon: 'calendar' },
+  { label: 'Calendar', icon: 'calendar', route: '/calendarPage' },
   { label: 'Automation', icon: 'cpu' },
   { label: 'Analytics', icon: 'bar-chart', route: '/analyticsPage' },
 ];
