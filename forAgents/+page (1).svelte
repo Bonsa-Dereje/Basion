@@ -117,6 +117,20 @@
         { id: 'schedule',   label: 'Schedule Post',   detail: 'Queue in planner',done: false },
       ],
     },
+    {
+      id: 'delegate',
+      label: 'Delegate',
+      phase: 'Phase 05',
+      x: 1065,
+      y: 25,
+      subtasks: [
+        { id: 'sarah',      label: 'Sarah (Lead Editor)',  detail: 'Internal Employee',  delegated: false },
+        { id: 'apex',       label: 'Apex Studio',          detail: 'Outsource Partner',  delegated: false },
+        { id: 'clara',      label: 'Clara (Copywriter)',   detail: 'Freelance Outsource',delegated: false },
+        { id: 'basion_ai',  label: 'Basion AI Agent',      detail: 'Autonomous Agent',   delegated: false },
+      ],
+      isDelegateNode: true
+    },
   ];
 
   // group dimensions
@@ -208,6 +222,79 @@
       return {
         ...g,
         subtasks: g.subtasks.map(s => s.id === subtaskId ? { ...s, done: !s.done } : s),
+      };
+    });
+  }
+
+  // ── Delegation & Automate Linking State ──────────────────────
+  let isDelegatingAnim = false;
+
+  function toggleDelegate(id) {
+    groups = groups.map(g => {
+      if (g.id !== 'delegate') return g;
+      return {
+        ...g,
+        subtasks: g.subtasks.map(s => {
+          if (s.id !== id) return s;
+          const nextState = !s.delegated;
+          
+          if (nextState) {
+            // Trigger animation
+            isDelegatingAnim = true;
+            setTimeout(() => {
+              isDelegatingAnim = false;
+            }, 1500);
+
+            // Add corresponding task to Automate panel
+            let newTask = null;
+            if (id === 'sarah') {
+              newTask = {
+                id: 'auto-del-sarah',
+                client: 'STARLIGHT MEDIA',
+                title: "Review Sarah's video edits",
+                detail: 'Provide draft feedback on rough cut revisions V2',
+                type: 'Call',
+                phone: '+1 (555) 234-5678'
+              };
+            } else if (id === 'apex') {
+              newTask = {
+                id: 'auto-del-apex',
+                client: 'TECHNOVA',
+                title: 'Audit Apex Studio assets',
+                detail: 'Confirm outsource quality benchmarks for Shoot',
+                type: 'Checkup',
+                taskUrl: '#checkup'
+              };
+            } else if (id === 'clara') {
+              newTask = {
+                id: 'auto-del-clara',
+                client: 'TECHNOVA',
+                title: "Check Clara's copywriting",
+                detail: 'Audit captions & review brief script description',
+                type: 'Checkup',
+                taskUrl: '#checkup'
+              };
+            } else {
+              newTask = {
+                id: 'auto-del-ai',
+                client: 'AURA LABS',
+                title: 'AI Agent mix diagnostics',
+                detail: 'Check automated sound check alignment via SMS',
+                type: 'Text',
+                phone: '+1 (555) 876-5432'
+              };
+            }
+
+            // Put it at the front of upcomingTasks
+            upcomingTasks = [newTask, ...upcomingTasks.filter(t => t.id !== newTask.id)];
+          } else {
+            // Remove from upcoming tasks if undelegated
+            const targetId = `auto-del-${id}`;
+            upcomingTasks = upcomingTasks.filter(t => t.id !== targetId);
+          }
+          
+          return { ...s, delegated: nextState };
+        })
       };
     });
   }
@@ -533,6 +620,42 @@
               </circle>
             {/each}
 
+            <!-- connector pipe from Delegate to Automate (right edge) -->
+            {@const delNode = groups.find(g => g.id === 'delegate')}
+            {#if delNode}
+              {@const ax = groupRightX(delNode)}
+              {@const ay = groupCenterY(delNode)}
+              {@const bx = 1380}
+              {@const by = ay}
+              {@const dx = (bx - ax) * 0.5}
+              <path
+                d="M {ax} {ay} C {ax+dx} {ay} {bx-dx} {by} {bx} {by}"
+                fill="none"
+                stroke={isDelegatingAnim ? 'rgba(16, 185, 129, 0.25)' : '#2a2c2d'}
+                stroke-width="14"
+                stroke-linecap="round"
+                class="delegate-to-auto-track"
+              />
+              <path
+                d="M {ax} {ay} C {ax+dx} {ay} {bx-dx} {by} {bx} {by}"
+                fill="none"
+                stroke={isDelegatingAnim ? '#10b981' : '#404345'}
+                stroke-width="1.5"
+                class="delegate-to-auto-line"
+              />
+              <!-- animated flow dot -->
+              <circle r="4" fill={isDelegatingAnim ? '#10b981' : '#606466'}>
+                <animateMotion
+                  dur={isDelegatingAnim ? '0.8s' : '2.8s'}
+                  repeatCount="indefinite"
+                  path="M {ax} {ay} C {ax+dx} {ay} {bx-dx} {by} {bx} {by}"
+                />
+              </circle>
+              <!-- right port for delegate node -->
+              <circle cx={ax} cy={ay} r="5" fill="#1c1b1b" stroke="#4a4c4d" stroke-width="1.2"/>
+              <circle cx={ax} cy={ay} r="2.5" fill={isDelegatingAnim ? '#10b981' : '#606466'}/>
+            {/if}
+
             <!-- port circles on group edges -->
             {#each groups as g, i}
               {#if i < groups.length - 1}
@@ -550,6 +673,8 @@
 
           <!-- Group enclosures (HTML overlay) -->
           {#each groups as g}
+            {@const done = g.isDelegateNode ? g.subtasks.filter(s => s.delegated).length : g.subtasks.filter(s => s.done).length}
+            {@const total = g.subtasks.length}
             <div
               class="group-node {g.active ? 'active' : ''}"
               style="left:{g.x}px; top:{g.y}px; width:{GW}px; height:{GH}px;"
@@ -561,8 +686,6 @@
                   <span class="group-label">{g.label}</span>
                 </div>
                 <div class="group-progress">
-                  {@const done = g.subtasks.filter(s => s.done).length}
-                  {@const total = g.subtasks.length}
                   <span class="group-progress-text">{done}/{total}</span>
                   <div class="group-progress-bar">
                     <div class="group-progress-fill" style="width:{(done/total)*100}%"></div>
@@ -570,31 +693,60 @@
                 </div>
               </div>
 
-              <!-- Subtask chips -->
+              <!-- Subtask chips / Delegate list -->
               <div class="group-subtasks">
-                {#each g.subtasks as s}
-                  <div
-                    class="subtask-chip {s.done ? 'done' : ''} {activeDragTask?.id === s.id ? 'is-dragging-source' : ''}"
-                    on:mousedown={e => startTaskDrag(e, s, g.id)}
-                    title="Drag to calendar or click checkbox"
-                  >
-                    <!-- Clickable checkbox to toggle completion -->
-                    <button
-                      class="chip-check {s.done ? 'checked' : ''}"
-                      on:click|stopPropagation={() => toggleSubtask(g.id, s.id)}
-                      type="button"
+                {#if g.isDelegateNode}
+                  {#each g.subtasks as s}
+                    <div class="delegate-chip {s.delegated ? 'active' : ''}">
+                      <div class="delegate-avatar">
+                        {#if s.id === 'sarah'}
+                          👩‍💻
+                        {:else if s.id === 'apex'}
+                          🏢
+                        {:else if s.id === 'clara'}
+                          ✍️
+                        {:else}
+                          🤖
+                        {/if}
+                      </div>
+                      <div class="chip-text">
+                        <span class="chip-label">{s.label}</span>
+                        <span class="chip-detail">{s.detail}</span>
+                      </div>
+                      <button
+                        class="delegate-action-btn {s.delegated ? 'delegated' : ''}"
+                        on:click|stopPropagation={() => toggleDelegate(s.id)}
+                        type="button"
+                      >
+                        {s.delegated ? 'ACTIVE' : 'DELEGATE'}
+                      </button>
+                    </div>
+                  {/each}
+                {#else}
+                  {#each g.subtasks as s}
+                    <div
+                      class="subtask-chip {s.done ? 'done' : ''} {activeDragTask?.id === s.id ? 'is-dragging-source' : ''}"
+                      on:mousedown={e => startTaskDrag(e, s, g.id)}
+                      title="Drag to calendar or click checkbox"
                     >
-                      {#if s.done}{@html icCheck()}{/if}
-                    </button>
-                    <div class="chip-text">
-                      <span class="chip-label">{s.label}</span>
-                      <span class="chip-detail">{s.detail}</span>
+                      <!-- Clickable checkbox to toggle completion -->
+                      <button
+                        class="chip-check {s.done ? 'checked' : ''}"
+                        on:click|stopPropagation={() => toggleSubtask(g.id, s.id)}
+                        type="button"
+                      >
+                        {#if s.done}{@html icCheck()}{/if}
+                      </button>
+                      <div class="chip-text">
+                        <span class="chip-label">{s.label}</span>
+                        <span class="chip-detail">{s.detail}</span>
+                      </div>
+                      <div class="chip-drag-handle">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="6" r="1.2" fill="currentColor"/><circle cx="15" cy="6" r="1.2" fill="currentColor"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/><circle cx="9" cy="18" r="1.2" fill="currentColor"/><circle cx="15" cy="18" r="1.2" fill="currentColor"/></svg>
+                      </div>
                     </div>
-                    <div class="chip-drag-handle">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="6" r="1.2" fill="currentColor"/><circle cx="15" cy="6" r="1.2" fill="currentColor"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/><circle cx="9" cy="18" r="1.2" fill="currentColor"/><circle cx="15" cy="18" r="1.2" fill="currentColor"/></svg>
-                    </div>
-                  </div>
-                {/each}
+                  {/each}
+                {/if}
               </div>
             </div>
           {/each}
