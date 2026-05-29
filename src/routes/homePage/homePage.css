@@ -1,6 +1,6 @@
 /* homePage.css — ClientFlow Dashboard */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -8,40 +8,40 @@
   padding: 0;
 }
 
+/* ─── Tokens (matches clientsPage) ──────────────────── */
 :root {
-  --bg-base: #0d0d0d;
-  --bg-sidebar: #111111;
-  --bg-card: #181818;
-  --bg-card-hover: #1e1e1e;
-  --bg-node: #1a1a1a;
-  --bg-node-header: #141414;
-  --border: #2a2a2a;
-  --border-light: #333333;
-  --text-primary: #f0f0f0;
-  --text-secondary: #888888;
-  --text-muted: #555555;
-  --text-label: #606060;
-  --accent: #e8e8e8;
-  --accent-dim: #444444;
-  --progress-track: #2a2a2a;
-  --progress-fill: #e0e0e0;
-  --progress-fill-low: #555;
-  --scrollbar-thumb: #2a2a2a;
-  --font-display: 'Syne', sans-serif;
-  --font-mono: 'DM Mono', monospace;
+  --surface:            #141313;
+  --surface-low:        #1c1b1b;
+  --surface-container:  #201f1f;
+  --surface-high:       #2a2a2a;
+  --surface-highest:    #353434;
+  --on-surface:         #e5e2e1;
+  --on-surface-variant: #c4c7c8;
+  --outline:            #8e9192;
+  --outline-variant:    #444748;
+  --primary:            #ffffff;
+  --on-primary:         #2f3131;
+  --secondary-container:#474746;
+  --font-display:       'Hanken Grotesk', sans-serif;
+  --font-mono:          'JetBrains Mono', monospace;
+  --radius-sm:  0.25rem;
+  --radius:     0.5rem;
+  --radius-md:  0.75rem;
+  --radius-lg:  1rem;
+  --radius-full:9999px;
   --sidebar-width: 220px;
   --topbar-height: 56px;
 }
 
 html, body {
   height: 100%;
-  background: var(--bg-base);
-  color: var(--text-primary);
+  background: var(--surface);
+  color: var(--on-surface);
   font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
 }
 
-/* ─── Layout Shell ─────────────────────────────────── */
+/* ─── Layout Shell ───────────────────────────────────── */
 .app-shell {
   display: grid;
   grid-template-columns: var(--sidebar-width) 1fr;
@@ -50,10 +50,10 @@ html, body {
   overflow: hidden;
 }
 
-/* ─── Sidebar ───────────────────────────────────────── */
+/* ─── Sidebar ─────────────────────────────────────────── */
 .sidebar {
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--border);
+  background: var(--surface-low);
+  border-right: 1px solid var(--outline-variant);
   display: flex;
   flex-direction: column;
   padding: 28px 0 20px;
@@ -64,15 +64,15 @@ html, body {
 
 .sidebar-brand {
   padding: 0 22px 28px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .brand-name {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 700;
   font-size: 15px;
-  letter-spacing: 0.08em;
-  color: var(--text-primary);
+  letter-spacing: 0.06em;
+  color: var(--primary);
   text-transform: uppercase;
 }
 
@@ -80,7 +80,7 @@ html, body {
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.18em;
-  color: var(--text-muted);
+  color: var(--outline);
   text-transform: uppercase;
   margin-top: 3px;
 }
@@ -100,21 +100,20 @@ html, body {
   font-family: var(--font-display);
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--outline);
   letter-spacing: 0.01em;
   transition: color 0.15s, background 0.15s;
-  border-radius: 0;
   position: relative;
 }
 
 .nav-item:hover {
-  color: var(--text-primary);
+  color: var(--on-surface);
   background: rgba(255,255,255,0.03);
 }
 
 .nav-item.active {
-  color: var(--text-primary);
-  background: rgba(255,255,255,0.06);
+  color: var(--primary);
+  background: rgba(255,255,255,0.05);
 }
 
 .nav-item.active::before {
@@ -124,7 +123,7 @@ html, body {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: var(--text-primary);
+  background: var(--primary);
 }
 
 .nav-icon {
@@ -141,7 +140,7 @@ html, body {
 
 .sidebar-footer {
   padding: 16px 0 0;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--outline-variant);
 }
 
 .add-client-btn {
@@ -151,10 +150,10 @@ html, body {
   justify-content: center;
   gap: 8px;
   padding: 11px;
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius);
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--outline);
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.12em;
@@ -164,28 +163,28 @@ html, body {
 }
 
 .add-client-btn:hover {
-  border-color: var(--text-secondary);
-  color: var(--text-primary);
-  background: rgba(255,255,255,0.03);
+  border-color: var(--outline);
+  color: var(--on-surface-variant);
+  background: var(--surface-container);
 }
 
-/* ─── Main Content ──────────────────────────────────── */
+/* ─── Main Content ───────────────────────────────────── */
 .main-content {
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  background: var(--bg-base);
+  background: var(--surface);
 }
 
-/* ─── Topbar ────────────────────────────────────────── */
+/* ─── Topbar ──────────────────────────────────────────── */
 .topbar {
   height: var(--topbar-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--outline-variant);
   flex-shrink: 0;
 }
 
@@ -194,7 +193,7 @@ html, body {
   font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--text-primary);
+  color: var(--on-surface);
 }
 
 .topbar-actions {
@@ -213,32 +212,32 @@ html, body {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   transition: color 0.15s, background 0.15s;
 }
 
 .icon-btn:hover {
-  color: var(--text-primary);
-  background: rgba(255,255,255,0.05);
+  color: var(--on-surface);
+  background: var(--surface-container);
 }
 
 .avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
+  background: var(--surface-high);
+  border: 1px solid var(--outline-variant);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   cursor: pointer;
 }
 
-/* ─── Dashboard Body ─────────────────────────────────── */
+/* ─── Dashboard Body ──────────────────────────────────── */
 .dashboard-body {
   display: grid;
   grid-template-columns: 300px 1fr;
@@ -247,9 +246,9 @@ html, body {
   overflow: hidden;
 }
 
-/* ─── Projects Panel ─────────────────────────────────── */
+/* ─── Projects Panel ──────────────────────────────────── */
 .projects-panel {
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--outline-variant);
   display: flex;
   flex-direction: column;
   grid-row: 1 / 3;
@@ -269,14 +268,14 @@ html, body {
   font-size: 9px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--outline);
 }
 
 .panel-count {
   font-family: var(--font-display);
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 
 .project-list {
@@ -286,14 +285,14 @@ html, body {
 
 .project-card {
   padding: 16px 22px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--outline-variant);
   cursor: pointer;
   transition: background 0.15s;
   position: relative;
 }
 
 .project-card:hover {
-  background: rgba(255,255,255,0.025);
+  background: var(--surface-low);
 }
 
 .project-card-header {
@@ -307,7 +306,7 @@ html, body {
   font-family: var(--font-display);
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--on-surface);
   letter-spacing: 0.01em;
 }
 
@@ -315,16 +314,16 @@ html, body {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--outline);
   display: flex;
   align-items: center;
   padding: 2px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   transition: color 0.15s;
 }
 
 .project-menu-btn:hover {
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 
 .project-meta {
@@ -337,19 +336,19 @@ html, body {
 .project-phase {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-label);
+  color: var(--outline);
   letter-spacing: 0.04em;
 }
 
 .project-pct {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 
 .progress-bar {
   height: 3px;
-  background: var(--progress-track);
+  background: var(--outline-variant);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -357,15 +356,15 @@ html, body {
 .progress-fill {
   height: 100%;
   border-radius: 2px;
-  background: var(--progress-fill);
+  background: var(--primary);
   transition: width 0.4s ease;
 }
 
 .progress-fill.low {
-  background: var(--progress-fill-low);
+  background: var(--outline);
 }
 
-/* ─── Project Graph ──────────────────────────────────── */
+/* ─── Project Graph ───────────────────────────────────── */
 .project-graph {
   padding: 22px 26px;
   overflow: auto;
@@ -375,8 +374,8 @@ html, body {
 .section-title {
   font-family: var(--font-display);
   font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-weight: 600;
+  color: var(--on-surface);
   margin-bottom: 3px;
 }
 
@@ -385,7 +384,7 @@ html, body {
   font-size: 9px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--outline);
   margin-bottom: 22px;
 }
 
@@ -404,22 +403,22 @@ html, body {
   overflow: visible;
 }
 
-/* ─── Graph Nodes ───────────────────────────────────── */
+/* ─── Graph Nodes ────────────────────────────────────── */
 .graph-node {
   position: absolute;
-  background: var(--bg-node);
-  border: 1px solid var(--border-light);
-  border-radius: 7px;
+  background: var(--surface-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
 .node-header {
-  background: var(--bg-node-header);
+  background: var(--surface-container);
   padding: 7px 12px;
   display: flex;
   align-items: center;
   gap: 6px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .node-header-label {
@@ -427,7 +426,7 @@ html, body {
   font-size: 8px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--outline);
 }
 
 .node-body {
@@ -438,14 +437,14 @@ html, body {
   font-family: var(--font-display);
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--on-surface);
   margin-bottom: 2px;
 }
 
 .node-id {
   font-family: var(--font-mono);
   font-size: 9px;
-  color: var(--text-muted);
+  color: var(--outline);
   letter-spacing: 0.06em;
 }
 
@@ -455,24 +454,23 @@ html, body {
   gap: 5px;
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   margin-bottom: 6px;
 }
 
 .node-progress {
   height: 3px;
-  background: var(--progress-track);
+  background: var(--outline-variant);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .node-progress-fill {
   height: 100%;
-  background: var(--accent-dim);
+  background: var(--secondary-container);
   border-radius: 2px;
 }
 
-/* Connector dot */
 .node-connector {
   position: absolute;
   right: -5px;
@@ -481,8 +479,8 @@ html, body {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--bg-base);
-  border: 1px solid var(--border-light);
+  background: var(--surface);
+  border: 1px solid var(--outline-variant);
 }
 
 .node-connector.left {
@@ -496,14 +494,14 @@ html, body {
 .node-shoot    { left: 230px; top: 20px; width: 175px; }
 .node-post     { left: 460px; top: 130px; width: 175px; }
 
-/* ─── Operations Center ──────────────────────────────── */
+/* ─── Operations Center ───────────────────────────────── */
 .operations-center {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--outline-variant);
   padding: 22px 26px;
   display: flex;
   flex-direction: column;
   gap: 18px;
-  background: var(--bg-base);
+  background: var(--surface);
   overflow-y: auto;
   max-height: 320px;
 }
@@ -519,16 +517,17 @@ html, body {
 .ops-title {
   font-family: var(--font-display);
   font-size: 20px;
-  font-weight: 800;
-  color: var(--text-primary);
+  font-weight: 700;
+  color: var(--on-surface);
   line-height: 1.1;
   margin-bottom: 4px;
+  letter-spacing: -0.01em;
 }
 
 .ops-desc {
   font-family: var(--font-display);
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--outline);
 }
 
 .ops-badge {
@@ -536,10 +535,10 @@ html, body {
   font-size: 8px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-light);
-  padding: 4px 8px;
-  border-radius: 4px;
+  color: var(--on-surface-variant);
+  border: 1px solid var(--outline-variant);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
   white-space: nowrap;
   align-self: flex-start;
 }
@@ -555,10 +554,10 @@ html, body {
   align-items: center;
   gap: 9px;
   padding: 12px 18px;
-  background: var(--text-primary);
-  color: #000;
+  background: var(--primary);
+  color: var(--on-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius);
   cursor: pointer;
   font-family: var(--font-mono);
   font-size: 9px;
@@ -568,17 +567,17 @@ html, body {
   transition: background 0.15s, transform 0.1s;
 }
 
-.ops-action-btn:hover { background: #ddd; transform: translateY(-1px); }
+.ops-action-btn:hover { background: #e8e8e8; transform: translateY(-1px); }
 
 .ops-action-btn.secondary {
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-light);
+  background: var(--surface-low);
+  color: var(--on-surface-variant);
+  border: 1px solid var(--outline-variant);
 }
 
 .ops-action-btn.secondary:hover {
-  background: var(--bg-card-hover);
-  color: var(--text-primary);
+  background: var(--surface-container);
+  color: var(--on-surface);
 }
 
 /* ─── Automation & Conversations Row ─────────────────── */
@@ -589,9 +588,9 @@ html, body {
 }
 
 .auto-card, .convo-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 7px;
+  background: var(--surface-low);
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -600,9 +599,9 @@ html, body {
   font-size: 8px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--outline);
   padding: 10px 14px 8px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--outline-variant);
 }
 
 .auto-flow {
@@ -624,23 +623,23 @@ html, body {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--outline-variant);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
 }
 
 .flow-label {
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.06em;
-  color: var(--text-muted);
+  color: var(--outline);
   text-align: center;
 }
 
 .flow-arrow {
-  color: var(--border-light);
+  color: var(--outline-variant);
   flex-shrink: 0;
 }
 
@@ -649,19 +648,25 @@ html, body {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  border-bottom: 1px solid var(--outline-variant);
+  cursor: pointer;
+  transition: background 0.12s;
 }
+.convo-item:last-of-type { border-bottom: none; }
+.convo-item:hover { background: var(--surface-container); }
 
 .convo-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--accent-dim);
+  background: var(--surface-high);
+  border: 1px solid var(--outline-variant);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
   font-size: 9px;
-  color: var(--text-secondary);
+  color: var(--on-surface-variant);
   flex-shrink: 0;
 }
 
@@ -671,14 +676,14 @@ html, body {
   font-family: var(--font-display);
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--on-surface);
   margin-bottom: 2px;
 }
 
 .convo-preview {
   font-family: var(--font-display);
   font-size: 11px;
-  color: var(--text-muted);
+  color: var(--outline);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -690,8 +695,8 @@ html, body {
   padding: 9px;
   background: transparent;
   border: none;
-  border-top: 1px solid var(--border);
-  color: var(--text-muted);
+  border-top: 1px solid var(--outline-variant);
+  color: var(--outline);
   font-family: var(--font-mono);
   font-size: 8px;
   letter-spacing: 0.14em;
@@ -702,11 +707,11 @@ html, body {
 }
 
 .view-all-btn:hover {
-  color: var(--text-secondary);
-  background: rgba(255,255,255,0.02);
+  color: var(--on-surface-variant);
+  background: var(--surface-container);
 }
 
 /* ─── Scrollbars ─────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: var(--outline-variant); border-radius: 2px; }
